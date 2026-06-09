@@ -94,7 +94,6 @@ class Net(nn.Module):
 model = Net()
 optimizer = torch.optim.Adam(model.parameters(), lr=5e-4, betas=(0.9, 0.999))
 criterion = nn.MSELoss()
-functional
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
 dtype = torch.float64
 batch_size = 32
@@ -114,12 +113,16 @@ nab_scoring_profile = "reward_fn"
 
 def training(train_data, anomaly_windows, test_data):
     #train_loader = DataLoader("C:\schoolstuff\\thesis2fold\data\\5xx_feature_dir\\filtered_df_.csv")
-    epochs = 5
+    
+    #MOVE RECONSTRUCTION ERROR OUT OF THE TRAINING LOOP TO THE TESTING.
+
+
+    epochs = 50
     loss_hist = []
     test_loss_hist = []
     counter = 0
     num_steps = 20
-    batch_size = 20
+    batch_size = 32
 
     anomaly_windows['anomaly_window_start'] = anomaly_windows['anomaly_window_start'].dt.tz_localize(None)
     anomaly_windows['anomaly_window_end'] = anomaly_windows['anomaly_window_end'].dt.tz_localize(None)
@@ -131,12 +134,13 @@ def training(train_data, anomaly_windows, test_data):
     #print(scaled_train_data)
     scaled_test_data = scaler.transform(test_data)
     train_loader = DataLoader(scaled_train_data, batch_size=batch_size, shuffle=False, drop_last=False)
-    test_loader = DataLoader(test_data,batch_size=batch_size, shuffle=False, drop_last=True)
+    test_loader = DataLoader(test_data,batch_size=batch_size, shuffle=False, drop_last=False)
     iteration_counter = 0
     
     # print(len(scaled_test_data))
     # print(len(scaled_train_data))
     # print(reconstruction_error_full)
+    
     mem_rec_full = []
     for epoch in range(epochs):
         item_num = 0
@@ -164,9 +168,11 @@ def training(train_data, anomaly_windows, test_data):
             #a = mem_rec.detach().numpy()
             #a = mem_rec.numpy()
             #data = data.numpy()
-            reconstruction_error_piece = torch.mean(
-                torch.pow(data- mem_rec, 2), axis=1
-            )
+
+            # reconstruction_error_piece = torch.mean(
+            #     torch.pow(data- mem_rec, 2), axis=1
+            # )
+
             # print(reconstruction_error_piece)
             #print(a)
             #print(mem_rec, 1)
@@ -177,12 +183,7 @@ def training(train_data, anomaly_windows, test_data):
             #     mem_rec_full.append(i)
                 #print(mem_rec_full)
             #print(mem_rec_full)
-            for i in reconstruction_error_piece:
-                #print(i)
-                #i = i.detach()
-                #if i > 0.245 or i < 0.24:
-                    #print(i)
-                reconstruction_error_full.append(i)
+            
         #print(mem_rec_full)
         # print(scaled_train_data)
             scaled_train_data = torch.tensor(scaled_train_data)
@@ -215,24 +216,9 @@ def training(train_data, anomaly_windows, test_data):
         # Compute anomaly likelihoods
 
         #SOMETHING HERE FOR EXECUTION?
-    print(reconstruction_error_full)
-    likelihoods = []
-    print('Computing Likelihood')
-    for i in range(len(reconstruction_error_full)):
-        if(i%10000 == 0):
-            print(i)
-        #print(reconstruction_error_full[:i+1])
-        likelihood = compute_anomaly_likelihood(
-            reconstruction_error_full[:i + 1], long_window, short_window
-        )
-        likelihoods.append(likelihood)
-
-    #print(likelihoods)
-    #print(anomaly_threshold)
-    likelihoods = np.array(likelihoods)
-    is_anomalies = (likelihoods > anomaly_threshold).astype(int)
-
-    return is_anomalies, likelihoods, reconstruction_error_full
+    
+    return model
+    #return pd.Series(is_anomalies, train_data.index), likelihoods, reconstruction_error_full
         #print(likelihoods)
 
 
@@ -329,25 +315,55 @@ def evaluate_performance(y_true, y_pred):
 
     return precision, recall, f1, accuracy, conf_matrix, mcc
 
-def testing(test_data, anomaly_windows_test, is_anomalies, likelihoods, reconstruction_error):
+#def testing(test_data, anomaly_windows_test, is_anomalies, likelihoods, reconstruction_error):
+def testing(test_data, anomaly_windows_test, model):
 
         y_true = [1 if ((anomaly_windows_test['anomaly_window_start'] <= t) & (t <= anomaly_windows_test['anomaly_window_end'])).any() else 0 for t in test_data.index]
         scaler = MinMaxScaler()
         #test_data = clean_training_data(test_data, anomaly_windows_test)
         scaled_test_data = scaler.fit_transform(test_data)
-        print(y_true)
-        for i in is_anomalies:
-            if i == 1:
-                print(i)
+        #print(y_true)
+        # for i in is_anomalies:
+        #     if i == 1:
+        #         print(i)
 
-        test_loader = DataLoader(scaled_test_data, batch_size=batch_size, shuffle=False, drop_last=True)
+        
+        reconstruction_error_full = []
+        test_loader = DataLoader(scaled_test_data, batch_size=batch_size, shuffle=False, drop_last=False)
         with torch.no_grad():
             model.eval()
             for data in iter(test_loader):
                 data = data.to(torch.float)
                 data = data.to(device)
                 tha = model(data)
+                reconstruction_error_piece = torch.mean(
+                    torch.pow(data- tha, 2), axis=1
+                )
+                for i in reconstruction_error_piece:
+                    #print(i)
+                    i = i.detach()
+                    #if i > 0.245 or i < 0.24:
+                        #print(i)
+                    reconstruction_error_full.append(i)
                 #print(tha)
+        
+        #print(reconstruction_error_full)
+        likelihoods = []
+        print('Computing Likelihood')
+        for i in range(len(reconstruction_error_full)):
+            if(i%10000 == 0):
+                print(i)
+            #print(reconstruction_error_full[:i+1])
+            likelihood = compute_anomaly_likelihood(
+                reconstruction_error_full[:i + 1], long_window, short_window
+            )
+            likelihoods.append(likelihood)
+
+        #print(likelihoods)
+        #print(anomaly_threshold)
+        reconstruction_error = reconstruction_error_full
+        likelihoods = np.array(likelihoods)
+        is_anomalies = (likelihoods > anomaly_threshold).astype(int)
 
         #TEST DATA SHOULD BE SCALED!
         #WE NEED X_TEST_PREDICTIONS FROM OG
@@ -358,13 +374,14 @@ def testing(test_data, anomaly_windows_test, is_anomalies, likelihoods, reconstr
         # Create results DataFrame for evaluation
         #print(y_true)
         #print(is_anomalies)
-        print(test_data.size)
+        print(len(scaled_test_data))
         print(len(y_true))
         print(is_anomalies.size)
         print(likelihoods.size)
         print(len(reconstruction_error))
+        print(is_anomalies)
         results_df = pd.DataFrame({
-            '5XX_count': test_data,  # Adjust as needed for your data
+            '5XX_count': test_data.sum(axis=1),  # Adjust as needed for your data
             'true_anomaly': y_true,  # This is what the function expects
             'predicted_anomaly': is_anomalies,  # The output of the model
             'anomaly_likelihood': likelihoods,
@@ -544,9 +561,9 @@ def main():
 
 
     log.info(f'Starting Training')
-    is_anomalies, likelihoods, reconstruction_error = training(train_data, anomaly_windows, test_data)
+    model = training(train_data, anomaly_windows, test_data)
     log.info(f'Starting Testing')
-    testing(test_data, anomaly_windows_test, is_anomalies, likelihoods, reconstruction_error)
+    testing(test_data, anomaly_windows_test, model)
 if __name__ == "__main__":
     main()
 
