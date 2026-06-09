@@ -97,7 +97,7 @@ criterion = nn.MSELoss()
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
 dtype = torch.float64
 batch_size = 32
-train_set = pd.read_csv("C:\\schoolstuff\\thesis2fold\\data\\5xx_feature_dir\\train.csv")
+train_set = pd.read_csv("C:\\schoolstuff\\thesis\\data\\5xx_feature_dir\\train.csv")
 
 anomaly_threshold = 0.996
 long_window = 30
@@ -544,16 +544,16 @@ def main():
     # Filter data for training and testing
     working_data = df_prodlive.loc[start_date:end_date]
     train_data = working_data.loc[start_date:train_end_date]
-    dir_to_save_to = os.path.dirname("C:\schoolstuff\\thesis2fold\data\\5xx_feature_dir")
+    dir_to_save_to = os.path.dirname("C:\schoolstuff\\thesis\data\\5xx_feature_dir")
     if dir_to_save_to and not os.path.exists(dir_to_save_to):
         os.makedirs(dir_to_save_to)
 
     # Save to CSV
-    train_data.to_csv("C:\schoolstuff\\thesis2fold\data\\5xx_feature_dir\\train.csv", index=True)
+    train_data.to_csv("C:\schoolstuff\\thesis\data\\5xx_feature_dir\\train.csv", index=True)
     test_data = working_data.loc[test_start_date:end_date]
     if dir_to_save_to and not os.path.exists(dir_to_save_to):
         os.makedirs(dir_to_save_to)
-    test_data.to_csv("C:\schoolstuff\\thesis2fold\data\\5xx_feature_dir\\test.csv", index = True)
+    test_data.to_csv("C:\schoolstuff\\thesis\data\\5xx_feature_dir\\test.csv", index = True)
     # Prepare anomaly windows
     anomaly_windows, anomaly_windows_test = filter_anomaly_windows(gt_utc_df, start_date, end_date, test_start_date)
     log.info(
