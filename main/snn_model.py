@@ -524,7 +524,7 @@ def main():
     log.info("Starting main function")
 
     # Load and prepare data
-    #df = pd.read_parquet("C:\schoolstuff\\thesis2fold\PQ_data\\14062900 (1)\pivoted_data_all.parquet")
+    #df = pd.read_parquet("..\\main\data\\14062900 (1)\pivoted_data_all.parquet")
     log.info("loading data")
     df_prodlive, gt_utc_df = load_and_prepare_data()
     df_prodlive = add_time_features(df_prodlive)
@@ -544,16 +544,16 @@ def main():
     # Filter data for training and testing
     working_data = df_prodlive.loc[start_date:end_date]
     train_data = working_data.loc[start_date:train_end_date]
-    dir_to_save_to = os.path.dirname("C:\schoolstuff\\thesis\data\\5xx_feature_dir")
+    dir_to_save_to = os.path.dirname("..\\main\data\\5xx_feature_dir")
     if dir_to_save_to and not os.path.exists(dir_to_save_to):
         os.makedirs(dir_to_save_to)
 
     # Save to CSV
-    train_data.to_csv("C:\schoolstuff\\thesis\data\\5xx_feature_dir\\train.csv", index=True)
+    train_data.to_csv("..\\main\data\\5xx_feature_dir\\train.csv", index=True)
     test_data = working_data.loc[test_start_date:end_date]
     if dir_to_save_to and not os.path.exists(dir_to_save_to):
         os.makedirs(dir_to_save_to)
-    test_data.to_csv("C:\schoolstuff\\thesis\data\\5xx_feature_dir\\test.csv", index = True)
+    test_data.to_csv("..\\main\data\\5xx_feature_dir\\test.csv", index = True)
     # Prepare anomaly windows
     anomaly_windows, anomaly_windows_test = filter_anomaly_windows(gt_utc_df, start_date, end_date, test_start_date)
     log.info(
