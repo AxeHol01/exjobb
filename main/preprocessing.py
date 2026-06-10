@@ -27,8 +27,8 @@ def load_and_prepare_data():
     - gt_utc_df: DataFrame, anomaly windows data.
     """
 
-    input_filename = 'C:\schoolstuff\\thesis2fold\data\\filtered_df_.csv'
-    gt_input_filename = "C:\schoolstuff\\thesis2fold\PQ_data\\14062900 (1)\\anomaly_windows.csv"
+    input_filename = '..\\main\data\\filtered_df_.csv'
+    gt_input_filename = "..\\main\data\\14062900\\anomaly_windows.csv"
     minutes_before = 20
 
     # Load the 5XX features only
