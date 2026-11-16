@@ -6,4 +6,3 @@ The dataset is too big to upload onto GitHub, so it has to be downloaded separat
 
 A virtual environment needs to be set up, with everything in requirements.txt downloaded. If something in the file doesn't install properly, please install it manually using pip install.
 
-The paths in the code are hardcoded. Please edit them as appropriate.
