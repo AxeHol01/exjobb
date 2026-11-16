@@ -88,7 +88,7 @@ criterion = nn.MSELoss()
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
 dtype = torch.float64
 batch_size = 32
-train_set = pd.read_csv("..\\thesis2fold\\data\\5xx_feature_dir\\train.csv")
+
 
 anomaly_threshold = 0.9996
 long_window = 30
@@ -96,9 +96,6 @@ short_window = 2
 nab_scoring_profile = "reward_fn"
 
 def training(train_data, anomaly_windows, test_data):
-    #train_loader = DataLoader("C:\schoolstuff\\thesis2fold\data\\5xx_feature_dir\\filtered_df_.csv")
-    
-    #MOVE RECONSTRUCTION ERROR OUT OF THE TRAINING LOOP TO THE TESTING.
 
 
     epochs = 50
@@ -303,8 +300,8 @@ def main():
     train_end_date = pd.Timestamp('2024-02-29')
     test_start_date = pd.Timestamp('2024-03-01')
     end_date = pd.Timestamp('2024-05-31') + timedelta(days=1)
-    result_directory = "./results/model_experiments/"
-    model_save_directory = "./trained_models/"
+    result_directory = "exjobb-main\\results\model_experiments"
+    
 
 
 
@@ -318,11 +315,11 @@ def main():
         os.makedirs(dir_to_save_to)
 
     # Save to CSV
-    train_data.to_csv("..\\thesis2fold\\data\\5xx_feature_dir\\train.csv", index=True)
+    train_data.to_csv("exjobb-main\data\\5xx_feature_dir\\train.csv", index=True)
     test_data = working_data.loc[test_start_date:end_date]
     if dir_to_save_to and not os.path.exists(dir_to_save_to):
         os.makedirs(dir_to_save_to)
-    test_data.to_csv("..\\thesis2fold\\data\\5xx_feature_dir\\test.csv", index = True)
+    test_data.to_csv("exjobb-main\data\\5xx_feature_dir\\test.csv", index = True)
     # Prepare anomaly windows
     anomaly_windows, anomaly_windows_test = filter_anomaly_windows(gt_utc_df, start_date, end_date, test_start_date)
     log.info(
