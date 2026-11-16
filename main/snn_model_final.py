@@ -75,19 +75,10 @@ class Net(nn.Module):
 
     def forward(self, x):
 
-        #for step in range(5):
         encoded, mem_x = self.encoder(x)
-
-        #x, y = self.latentToConv(encoded)
-        #encoded = self.encoder(x)
-        #for step in range(5):
         decoded, mem_dec = self.decoder(encoded)
-        #decoded = self.decoder(encoded)
-        # print(mem_dec)
-        # print(decoded)s
         utils.reset(self.encoder)
         utils.reset(self.decoder)
-        #utils.reset(self.latentToConv)
         return decoded
 
 model = Net()
