@@ -27,8 +27,8 @@ def load_and_prepare_data():
     - gt_utc_df: DataFrame, anomaly windows data.
     """
 
-    input_filename = '..\\main\data\\filtered_df_.csv'
-    gt_input_filename = "..\\main\data\\14062900\\anomaly_windows.csv"
+    input_filename = '..\\exjobb-main\data\\filtered_df_.csv'
+    gt_input_filename = "exjobb-main\PQ_data\\14062900 (1)\\anomaly_windows.csv"
     minutes_before = 20
 
     # Load the 5XX features only
@@ -62,7 +62,7 @@ def prepare_5xx_features():
     :param cfg: Configuration object containing the input and output file paths and filename template.
     """
     # Construct input and output paths
-    input_path = os.path.join('.\\PQ_data\\14062900 (1)\\',
+    input_path = os.path.join('exjobb-main\PQ_data\\14062900 (1)',
                               'pivoted_data_all.parquet')
     output_path = os.path.join('.\\data\\5xx_feature_dir\\',
                                'filtered_df_.csv')
