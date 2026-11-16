@@ -6,3 +6,4 @@ The dataset is too big to upload onto GitHub, so it has to be downloaded separat
 
 A virtual environment needs to be set up, with everything in requirements.txt downloaded. If something in the file doesn't install properly, please install it manually using pip install.
 
+The code is largely based on the code found in this previous project. https://github.com/msi-ru-cs/icse-seip2025-anomaly-detector-public/tree/master
