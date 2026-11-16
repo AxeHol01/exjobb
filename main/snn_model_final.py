@@ -290,7 +290,6 @@ def main():
     log.info("Starting main function")
 
     # Load and prepare data
-    #df = pd.read_parquet("..\\thesis2fold\PQ_data\\14062900 (1)\pivoted_data_all.parquet")
     log.info("loading data")
     df_prodlive, gt_utc_df = load_and_prepare_data()
     df_prodlive = add_time_features(df_prodlive)
