@@ -93,7 +93,6 @@ def detect_anomalies_with_likelihood(autoencoder, X_test, anomaly_threshold, lon
 
         total = 0
         correct = 0
-        #THIS IS THE PART THAT NEEDS FIXING NEXT!!!!!!!!!
         # drop_last switched to False to keep all samples
         test_loader = DataLoader(X_test, batch_size=32, shuffle=True, drop_last=False)
         device = torch.device("cuda") if torch.cuda.is_available() else torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
